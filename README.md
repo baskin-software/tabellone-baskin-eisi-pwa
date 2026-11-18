@@ -28,7 +28,7 @@ Due schermate:
 Tutto il display a 7 segmenti è disegnato in SVG: nessun font o file esterno, quindi funziona davvero offline.
 
 <p align="center">
-  <a href="https://uncledan.github.io/tabellone-baskin-eisi-pwa/pwa/"><img src="https://img.shields.io/badge/%E2%96%B6%20Apri%20la%20PWA-2962FF?style=for-the-badge&logoColor=white" alt="Apri la PWA"></a>
+  <a href="https://baskin-software.github.io/tabellone-baskin-eisi-pwa/"><img src="https://img.shields.io/badge/%E2%96%B6%20Apri%20la%20PWA-2962FF?style=for-the-badge&logoColor=white" alt="Apri la PWA"></a>
 </p>
 
 ---
@@ -37,9 +37,9 @@ Tutto il display a 7 segmenti è disegnato in SVG: nessun font o file esterno, q
 
 Il Tabellone Baskin EISI esiste in **due repository**, che lavorano insieme:
 
-- **PWA (web)** — repo **[`tabellone-baskin-eisi-pwa`](https://github.com/UncleDan/tabellone-baskin-eisi-pwa)** *(questo)*:
+- **PWA (web)** — repo **[`tabellone-baskin-eisi-pwa`](https://github.com/baskin-software/tabellone-baskin-eisi-pwa)** *(questo)*:
   il segnapunti web di questa pagina, installabile e offline.
-- **App Android (Cast)** — **Tabellone Baskin EISI (Cast)**, repo **[`tabellone-baskin-eisi-cast`](https://github.com/UncleDan/tabellone-baskin-eisi-cast)** *(work in progress)*:
+- **App Android** — **Tabellone Baskin EISI (Android)**, repo **[`tabellone-baskin-eisi-android`](https://github.com/baskin-software/tabellone-baskin-eisi-android)** *(work in progress)*:
   incorpora questa stessa PWA e aggiunge la presentazione su TV (display
   secondario HDMI/Miracast o LAN). Questa PWA, in modalità `?display=1`, fa anche
   da **schermo via browser** per quell'app.
@@ -62,11 +62,10 @@ La stessa guida è integrata **anche nell'app** (pulsante **Guida all'uso** nel 
 
 ## Uso in locale
 
-Aprendo `pwa/index.html` con doppio clic (`file://`) l'app funziona, ma **il service worker e l'installazione PWA richiedono `http(s)`**. Per provarli in locale:
+Aprendo `index.html` con doppio clic (`file://`) l'app funziona, ma **il service worker e l'installazione PWA richiedono `http(s)`**. Per provarli in locale:
 
 ```bash
-# dalla cartella pwa/
-cd pwa
+# dalla cartella del repository
 python3 -m http.server 8080
 # poi apri http://localhost:8080
 ```
@@ -79,38 +78,39 @@ python3 -m http.server 8080
 tabellone-baskin-eisi-pwa/
 ├── README.md
 ├── .gitignore
+├── .github/workflows/
+│   └── pages.yml       (GitHub Pages: main → /, beta → /beta/, /pwa/ → app)
 ├── docs/
 │   ├── guida-it.md
 │   ├── guide-en.md
 │   ├── guide-fr.md
 │   ├── guia-es.md
 │   └── guide-de.md
-└── pwa/
-    ├── index.html
-    ├── manifest.webmanifest
-    ├── service-worker.js
-    ├── css/styles.css
-    ├── js/i18n.js
-    ├── js/app.js
-    ├── sounds/
-    │   ├── horn.wav        (sirena - audio originale, CC0)
-    │   ├── whistle.wav     (fischietto - audio originale, CC0)
-    │   └── CREDITS.txt
-    └── icons/
-        ├── icon-192.png
-        ├── icon-512.png
-        └── icon-maskable-512.png
+├── index.html
+├── manifest.webmanifest
+├── service-worker.js
+├── css/styles.css
+├── js/i18n.js
+├── js/app.js
+├── sounds/
+│   ├── horn.wav        (sirena - audio originale, CC0)
+│   ├── whistle.wav     (fischietto - audio originale, CC0)
+│   └── CREDITS.txt
+└── icons/
+    ├── icon-192.png
+    ├── icon-512.png
+    └── icon-maskable-512.png
 ```
 
 ---
 
 ## Personalizzazione rapida
 
-- **Colori**: variabili `--green`, `--red`, `--yellow` in `pwa/css/styles.css`.
-- **Valori predefiniti** (minuti, periodi, timeout, bonus): oggetto `DEFAULT_CONFIG` in `pwa/js/app.js`.
-- **Aggiornamenti**: a ogni rilascio incrementa `CACHE_NAME` in `pwa/service-worker.js` e `APP_VERSION` in `pwa/js/app.js` (versionamento allineato all'app Cast: `versione.sottoversione[.patch]`, con la versione maggiore pari all'anno a due cifre. La patch si indica solo quando c'è: `26.0`, poi `26.0.1` per una correzione, `26.1` per le nuove funzioni, `27.0` per il primo rilascio dell'anno successivo). Se aperta nel browser normale (non installata) si aggiorna da sola al ricaricamento; se installata come PWA non si aggiorna automaticamente (per non interrompere una partita in corso) e l'utente verifica da "Verifica aggiornamenti" nelle impostazioni, disinstallando e reinstallando l'app se ne trova una nuova.
+- **Colori**: variabili `--green`, `--red`, `--yellow` in `css/styles.css`.
+- **Valori predefiniti** (minuti, periodi, timeout, bonus): oggetto `DEFAULT_CONFIG` in `js/app.js`.
+- **Aggiornamenti**: a ogni rilascio incrementa `CACHE_NAME` in `service-worker.js` e `APP_VERSION` in `js/app.js` (versionamento allineato all'app Android: `versione.sottoversione[.patch]`, con la versione maggiore pari all'anno a due cifre. La patch si indica solo quando c'è: `26.0`, poi `26.0.1` per una correzione, `26.1` per le nuove funzioni, `27.0` per il primo rilascio dell'anno successivo). Se aperta nel browser normale (non installata) si aggiorna da sola al ricaricamento; se installata come PWA non si aggiorna automaticamente (per non interrompere una partita in corso) e l'utente verifica da "Verifica aggiornamenti" nelle impostazioni, disinstallando e reinstallando l'app se ne trova una nuova.
 - **Compatibilità browser datati**: il layout usa `clamp()` per le dimensioni. Ogni dichiarazione ha un fallback fisso che la precede, così su motori privi di `clamp()` (Chrome < 79, WebView di sistema su Android 8/9) l'app resta usabile invece di mostrare loghi/icone a dimensione intrinseca. Mantenere questo schema (valore fisso prima, `clamp()` dopo) quando si aggiunge nuovo CSS dimensionale. Nota: su Chrome < 84 la spaziatura `gap` nei flexbox non è supportata, quindi alcuni elementi possono risultare più ravvicinati (degradazione solo estetica).
-- **Traduzioni**: dizionari in `pwa/js/i18n.js` (oggetto `I18N_DICT`, una chiave per lingua: `it`/`en`/`fr`/`es`/`de`). Per aggiungere una lingua: creare un nuovo blocco con le stesse chiavi di `it`, aggiungere il codice a `I18N_SUPPORTED` e la relativa bandiera in `index.html` (`.lang-flag` con `data-lang`), poi creare la guida corrispondente in `docs/`. Il testo statico in `index.html` usa attributi `data-i18n`/`data-i18n-aria`/`data-i18n-placeholder`; il testo generato dinamicamente in `app.js` usa la funzione `t('chiave', {variabili})`.
+- **Traduzioni**: dizionari in `js/i18n.js` (oggetto `I18N_DICT`, una chiave per lingua: `it`/`en`/`fr`/`es`/`de`). Per aggiungere una lingua: creare un nuovo blocco con le stesse chiavi di `it`, aggiungere il codice a `I18N_SUPPORTED` e la relativa bandiera in `index.html` (`.lang-flag` con `data-lang`), poi creare la guida corrispondente in `docs/`. Il testo statico in `index.html` usa attributi `data-i18n`/`data-i18n-aria`/`data-i18n-placeholder`; il testo generato dinamicamente in `app.js` usa la funzione `t('chiave', {variabili})`.
 
 ---
 
@@ -120,14 +120,14 @@ Aprendo la PWA con il parametro `?lang=` si forza la lingua per quella apertura,
 scavalcando sia la lingua di sistema sia la preferenza salvata nel menu:
 
 ```
-…/pwa/?lang=de          → tabellone in tedesco
-…/pwa/?display=1&lang=es → schermo in sola visualizzazione, in spagnolo
+…/?lang=de          → tabellone in tedesco
+…/?display=1&lang=es → schermo in sola visualizzazione, in spagnolo
 ```
 
 Valori ammessi: `it`, `en`, `fr`, `es`, `de` (un valore non supportato viene
 semplicemente ignorato e vale il comportamento normale). L'override **non
 modifica la preferenza salvata**: è utile per link diretti, QR code o per lo
-schermo Cast in un contesto linguistico diverso da quello del dispositivo che
+schermo collegato in un contesto linguistico diverso da quello del dispositivo che
 gestisce la partita. Se l'utente sceglie una lingua dal menu mentre il parametro
 è attivo, il parametro viene rimosso dall'URL, così la scelta manuale ha effetto.
 
@@ -135,7 +135,7 @@ gestisce la partita. Se l'utente sceglie una lingua dal menu mentre il parametro
 
 ## Modalità sola visualizzazione (`?display=1`)
 
-Aprendo la PWA con il parametro `?display=1` (es. `…/tabellone-baskin/?display=1`) si
+Aprendo la PWA con il parametro `?display=1` (es. `…/?display=1`) si
 attiva la **modalità display**: il tabellone viene mostrato **senza alcun comando**
 (niente play, modifica, menu, pulsanti punti/falli, sirena/fischietto), in sola
 lettura, adatta a un secondo schermo o a un TV.
@@ -143,13 +143,13 @@ lettura, adatta a un secondo schermo o a un TV.
 - In questa modalità l'app **non modifica né salva** la partita: è un puro
   visualizzatore.
 - Lo stato arriva dall'esterno: se la pagina è servita da un web server con
-  endpoint `GET /state` (come nell'app *Tabellone Baskin EISI (Cast)*), il display fa
+  endpoint `GET /state` (come nell'app *Tabellone Baskin EISI (Android)*), il display fa
   **polling** ogni ~0,75 s; il cronometro scorre comunque fluido perché il tempo
   viene fatto avanzare in locale tra un aggiornamento e l'altro.
 - È disponibile anche `window.applyDisplayState(json)` per aggiornare il display
   con un push diretto (usato dal wrapper Android tramite un display secondario).
 
-Questa modalità è la base dell'app **[Tabellone Baskin EISI (Cast)](https://github.com/UncleDan/tabellone-baskin-eisi-cast)**
+Questa modalità è la base dell'app **[Tabellone Baskin EISI (Android)](https://github.com/baskin-software/tabellone-baskin-eisi-android)**
 (progetto Android separato, **work in progress**) che presenta il tabellone su un
 TV via **display secondario (HDMI/Miracast)** o via **LAN** (browser del TV).
 
@@ -283,7 +283,7 @@ Di conseguenza cambia anche il **significato** dei campi fuori da `config`:
 ## Licenza
 
 Codice rilasciato sotto licenza **MIT** (vedi [`LICENSE`](LICENSE)) — open source.
-I suoni in `pwa/sounds/` sono CC0.
+I suoni in `sounds/` sono CC0.
 
 > I loghi «EISI» e «Baskin» sono marchi registrati rispettivamente da Ente
 > Italiano Sport Inclusivi e Associazione Baskin. La licenza MIT copre il
@@ -295,4 +295,4 @@ Dal menu **…** dell'app è disponibile il link diretto al **repository GitHub*
 ---
 
 **Autore:** Daniele Lolli (UncleDan)  
-**Versione:** 26.0
+**Versione:** 26.0.1

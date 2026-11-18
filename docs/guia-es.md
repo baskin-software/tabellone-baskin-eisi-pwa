@@ -59,4 +59,4 @@ El estado del partido se guarda **después de cada acción**, incluso si la apli
 
 ---
 
-📄 Volver al [README](../README.md) · 🐞 [Informar de un problema](https://github.com/UncleDan/tabellone-baskin-eisi-pwa/issues)
+📄 Volver al [README](../README.md) · 🐞 [Informar de un problema](https://github.com/baskin-software/tabellone-baskin-eisi-pwa/issues)

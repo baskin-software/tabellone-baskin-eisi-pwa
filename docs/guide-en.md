@@ -59,4 +59,4 @@ Match state is saved **after every action**, even if the app goes to the backgro
 
 ---
 
-📄 Back to the [README](../README.md) · 🐞 [Report an issue](https://github.com/UncleDan/tabellone-baskin-eisi-pwa/issues)
+📄 Back to the [README](../README.md) · 🐞 [Report an issue](https://github.com/baskin-software/tabellone-baskin-eisi-pwa/issues)

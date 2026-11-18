@@ -1,0 +1,116 @@
+# Pubblica su GitHub Pages:
+#   - ramo main -> / (radice del sito)
+#   - ramo beta -> /beta/
+# L'app sta nella radice del repository (index.html, js/, css/, ...).
+# Se main non contiene index.html, la radice / reindirizza a /beta/.
+# Il vecchio indirizzo /pwa/ reindirizza a / (o a /beta/ se main non ha
+# index.html), così i link e i segnalibri precedenti restano validi.
+# Un ramo ancora con la vecchia struttura (app in pwa/) viene pubblicato
+# lo stesso, prendendo il contenuto di pwa/.
+# Ad ogni push su uno dei due rami il sito viene ricostruito con l'ultimo
+# stato di entrambi, così una pubblicazione non cancella l'altra.
+name: Deploy to Pages
+
+on:
+  push:
+    branches: ["main", "beta"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout (tutti i rami)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Compone il sito
+        run: |
+          set -e
+          mkdir -p _site
+          has_root() { git cat-file -e "origin/$1:index.html" 2>/dev/null; }
+          has_old()  { git cat-file -e "origin/$1:pwa/index.html" 2>/dev/null; }
+          has() { has_root "$1" || has_old "$1"; }
+          export_branch() { # ramo destinazione
+            mkdir -p "$2"
+            if has_root "$1"; then
+              git archive "origin/$1" | tar -x -C "$2"
+              rm -rf "$2/.github" "$2/.gitignore" "$2/.gitattributes"
+            else
+              git archive "origin/$1" pwa | tar -x -C "$2" --strip-components=1
+            fi
+          }
+          if has main; then
+            export_branch main _site
+            echo "main -> /"
+          fi
+          if has beta; then
+            export_branch beta _site/beta
+            echo "beta -> /beta/"
+          fi
+          if [ ! -f _site/index.html ]; then
+            if [ ! -f _site/beta/index.html ]; then
+              echo "Né main né beta contengono index.html" >&2; exit 1
+            fi
+            cat > _site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="it"><head><meta charset="utf-8">
+          <title>Tabellone Baskin EISI (PWA)</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta http-equiv="refresh" content="0; url=beta/">
+          <script>location.replace('beta/');</script></head>
+          <body><p><a href="beta/">Tabellone Baskin EISI (PWA) – versione beta</a></p></body></html>
+          HTML
+            echo "main senza index.html: / -> /beta/"
+          fi
+          # Vecchio indirizzo /pwa/ -> app corrente (conserva #ancora e ?parametri)
+          if [ -f _site/beta/index.html ] && ! has main; then DEST="../beta/"; else DEST="../"; fi
+          mkdir -p _site/pwa
+          cat > _site/pwa/index.html <<HTML
+          <!DOCTYPE html>
+          <html lang="it"><head><meta charset="utf-8">
+          <title>Tabellone Baskin EISI (PWA)</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta http-equiv="refresh" content="0; url=${DEST}">
+          <script>location.replace('${DEST}' + location.search + location.hash);</script></head>
+          <body><p>L'app si è spostata: <a href="${DEST}">Tabellone Baskin EISI (PWA)</a></p></body></html>
+          HTML
+          # Chi aveva installato l'app in /pwa/ ha un service worker con la vecchia
+          # copia in cache: questo lo sostituisce, cancella solo le cache vecchio
+          # stile, si disinstalla e ricarica le pagine, che arrivano al redirect.
+          cat > _site/pwa/service-worker.js <<'JS'
+          self.addEventListener('install', () => self.skipWaiting());
+          self.addEventListener('activate', e => e.waitUntil((async () => {
+            for (const k of await caches.keys())
+              if (k.startsWith('tabellone-baskin-eisi-') && !k.includes('@')) await caches.delete(k);
+            await self.registration.unregister();
+            for (const c of await self.clients.matchAll({ type: 'window' })) c.navigate(c.url);
+          })()));
+          JS
+          echo "/pwa/ -> ${DEST}"
+          touch _site/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

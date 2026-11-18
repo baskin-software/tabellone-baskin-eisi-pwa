@@ -5,17 +5,17 @@
    ===================================================================== */
 'use strict';
 
-const APP_VERSION = '26.0';
+const APP_VERSION = '26.0.1';
 const STORE_KEY = 'tabellone-baskin-eisi-v1';
 
 /* Modalità "sola visualizzazione": attivata con ?display=1 nell'URL.
    Nasconde tutti i comandi e riceve lo stato dal controller (via SSE quando
-   servito da un web server, o via window.applyDisplayState dal wrapper Cast).
+   servito da un web server, o via window.applyDisplayState dal wrapper Android).
    In questa modalità l'app NON persiste nulla e NON pubblica stato. */
 const DISPLAY_MODE = (()=>{ try{ return new URLSearchParams(location.search).get('display') === '1'; }catch(_){ return false; } })();
 
 /* Repository del codice sorgente (modifica l'URL se cambi repo) */
-const REPO_URL = 'https://github.com/UncleDan/tabellone-baskin-eisi-pwa';
+const REPO_URL = 'https://github.com/baskin-software/tabellone-baskin-eisi-pwa';
 
 /* =====================================================================
    >>> LOGHI EISI/BASKIN: default per la pubblicazione <<<
@@ -208,7 +208,7 @@ function saveState(fromTick){
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   }catch(e){}
   const payload = costruisciPayloadStato();
-  // wrapper "Cast": push locale al display secondario / web server integrato
+  // wrapper Android: push locale al display secondario / web server integrato
   // (a ogni salvataggio, anche sul tick, così il display resta sincronizzato)
   if(window.CastBridge && typeof window.CastBridge.pushState === 'function'){
     try{ window.CastBridge.pushState(JSON.stringify(payload)); }catch(_){}
@@ -218,7 +218,7 @@ function saveState(fromTick){
 }
 
 /* Costruisce il payload dello stato partita (usato da BaskinCam, dal wrapper
-   Cast e dal server LAN per la modalità sola visualizzazione). */
+   Android e dal server LAN per la modalità sola visualizzazione). */
 function costruisciPayloadStato(){
   const cfg = state.config;
   return {
@@ -1420,7 +1420,7 @@ onActivate($('#baskinInfoClose'), ()=>{ closeSheet('baskinInfoBackdrop'); });
 onActivate($('#actGuide'), ()=>{ closeSheet('moreBackdrop'); openSheet('guideBackdrop'); });
 onActivate($('#guideClose'), ()=>{ closeSheet('guideBackdrop'); });
 
-/* voci disponibili solo dentro l'app Android "Cast" (window.CastBridge) */
+/* voci disponibili solo dentro l'app Tabellone Baskin EISI (Android) (window.CastBridge) */
 (function setupCastMenu(){
   const cb = window.CastBridge;
   if(!cb) return;
