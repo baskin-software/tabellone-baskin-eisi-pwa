@@ -1,12 +1,9 @@
 # Pubblica su GitHub Pages:
 #   - ramo main -> / (radice del sito)
 #   - ramo beta -> /beta/
-# L'app sta nella radice del repository (index.html, js/, css/, ...).
-# Se main non contiene index.html, la radice / reindirizza a /beta/.
-# Il vecchio indirizzo /pwa/ reindirizza a / (o a /beta/ se main non ha
-# index.html), così i link e i segnalibri precedenti restano validi.
-# Un ramo ancora con la vecchia struttura (app in pwa/) viene pubblicato
-# lo stesso, prendendo il contenuto di pwa/.
+# Se main non contiene pwa/index.html, la radice / reindirizza a /beta/.
+# Il vecchio indirizzo /pwa/ reindirizza a / (o a /beta/ se main non ha l'app),
+# così i link e i segnalibri precedenti restano validi.
 # Ad ogni push su uno dei due rami il sito viene ricostruito con l'ultimo
 # stato di entrambi, così una pubblicazione non cancella l'altra.
 name: Deploy to Pages
@@ -44,17 +41,10 @@ jobs:
         run: |
           set -e
           mkdir -p _site
-          has_root() { git cat-file -e "origin/$1:index.html" 2>/dev/null; }
-          has_old()  { git cat-file -e "origin/$1:pwa/index.html" 2>/dev/null; }
-          has() { has_root "$1" || has_old "$1"; }
+          has() { git cat-file -e "origin/$1:pwa/index.html" 2>/dev/null; }
           export_branch() { # ramo destinazione
             mkdir -p "$2"
-            if has_root "$1"; then
-              git archive "origin/$1" | tar -x -C "$2"
-              rm -rf "$2/.github" "$2/.gitignore" "$2/.gitattributes"
-            else
-              git archive "origin/$1" pwa | tar -x -C "$2" --strip-components=1
-            fi
+            git archive "origin/$1" pwa | tar -x -C "$2" --strip-components=1
           }
           if has main; then
             export_branch main _site
@@ -66,7 +56,7 @@ jobs:
           fi
           if [ ! -f _site/index.html ]; then
             if [ ! -f _site/beta/index.html ]; then
-              echo "Né main né beta contengono index.html" >&2; exit 1
+              echo "Né main né beta contengono pwa/index.html" >&2; exit 1
             fi
             cat > _site/index.html <<'HTML'
           <!DOCTYPE html>
