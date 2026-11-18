@@ -977,7 +977,7 @@ function i18nDetectSystemLang(){
 
 /* Override da URL: ?lang=xx forza la lingua per questa sessione/apertura,
    senza toccare la preferenza salvata. Utile per link diretti e per lo
-   schermo Cast (?display=1&lang=de). Valori non supportati sono ignorati. */
+   schermo collegato (?display=1&lang=de). Valori non supportati sono ignorati. */
 function i18nUrlLang(){
   try{
     const v = new URLSearchParams(location.search).get('lang');
