@@ -62,10 +62,11 @@ La stessa guida è integrata **anche nell'app** (pulsante **Guida all'uso** nel 
 
 ## Uso in locale
 
-Aprendo `index.html` con doppio clic (`file://`) l'app funziona, ma **il service worker e l'installazione PWA richiedono `http(s)`**. Per provarli in locale:
+Aprendo `pwa/index.html` con doppio clic (`file://`) l'app funziona, ma **il service worker e l'installazione PWA richiedono `http(s)`**. Per provarli in locale:
 
 ```bash
-# dalla cartella del repository
+# dalla cartella pwa/
+cd pwa
 python3 -m http.server 8080
 # poi apri http://localhost:8080
 ```
@@ -79,38 +80,39 @@ tabellone-baskin-eisi-pwa/
 ├── README.md
 ├── .gitignore
 ├── .github/workflows/
-│   └── pages.yml       (GitHub Pages: main → /, beta → /beta/, /pwa/ → app)
+│   └── pages.yml       (GitHub Pages: main → /, beta → /beta/, /pwa/ → /)
 ├── docs/
 │   ├── guida-it.md
 │   ├── guide-en.md
 │   ├── guide-fr.md
 │   ├── guia-es.md
 │   └── guide-de.md
-├── index.html
-├── manifest.webmanifest
-├── service-worker.js
-├── css/styles.css
-├── js/i18n.js
-├── js/app.js
-├── sounds/
-│   ├── horn.wav        (sirena - audio originale, CC0)
-│   ├── whistle.wav     (fischietto - audio originale, CC0)
-│   └── CREDITS.txt
-└── icons/
-    ├── icon-192.png
-    ├── icon-512.png
-    └── icon-maskable-512.png
+└── pwa/
+    ├── index.html
+    ├── manifest.webmanifest
+    ├── service-worker.js
+    ├── css/styles.css
+    ├── js/i18n.js
+    ├── js/app.js
+    ├── sounds/
+    │   ├── horn.wav        (sirena - audio originale, CC0)
+    │   ├── whistle.wav     (fischietto - audio originale, CC0)
+    │   └── CREDITS.txt
+    └── icons/
+        ├── icon-192.png
+        ├── icon-512.png
+        └── icon-maskable-512.png
 ```
 
 ---
 
 ## Personalizzazione rapida
 
-- **Colori**: variabili `--green`, `--red`, `--yellow` in `css/styles.css`.
-- **Valori predefiniti** (minuti, periodi, timeout, bonus): oggetto `DEFAULT_CONFIG` in `js/app.js`.
-- **Aggiornamenti**: a ogni rilascio incrementa `CACHE_NAME` in `service-worker.js` e `APP_VERSION` in `js/app.js` (versionamento allineato all'app Android: `versione.sottoversione[.patch]`, con la versione maggiore pari all'anno a due cifre. La patch si indica solo quando c'è: `26.0`, poi `26.0.1` per una correzione, `26.1` per le nuove funzioni, `27.0` per il primo rilascio dell'anno successivo). Se aperta nel browser normale (non installata) si aggiorna da sola al ricaricamento; se installata come PWA non si aggiorna automaticamente (per non interrompere una partita in corso) e l'utente verifica da "Verifica aggiornamenti" nelle impostazioni, disinstallando e reinstallando l'app se ne trova una nuova.
+- **Colori**: variabili `--green`, `--red`, `--yellow` in `pwa/css/styles.css`.
+- **Valori predefiniti** (minuti, periodi, timeout, bonus): oggetto `DEFAULT_CONFIG` in `pwa/js/app.js`.
+- **Aggiornamenti**: a ogni rilascio incrementa `CACHE_NAME` in `pwa/service-worker.js` e `APP_VERSION` in `pwa/js/app.js` (versionamento allineato all'app Android: `versione.sottoversione[.patch]`, con la versione maggiore pari all'anno a due cifre. La patch si indica solo quando c'è: `26.0`, poi `26.0.1` per una correzione, `26.1` per le nuove funzioni, `27.0` per il primo rilascio dell'anno successivo). Se aperta nel browser normale (non installata) si aggiorna da sola al ricaricamento; se installata come PWA non si aggiorna automaticamente (per non interrompere una partita in corso) e l'utente verifica da "Verifica aggiornamenti" nelle impostazioni, disinstallando e reinstallando l'app se ne trova una nuova.
 - **Compatibilità browser datati**: il layout usa `clamp()` per le dimensioni. Ogni dichiarazione ha un fallback fisso che la precede, così su motori privi di `clamp()` (Chrome < 79, WebView di sistema su Android 8/9) l'app resta usabile invece di mostrare loghi/icone a dimensione intrinseca. Mantenere questo schema (valore fisso prima, `clamp()` dopo) quando si aggiunge nuovo CSS dimensionale. Nota: su Chrome < 84 la spaziatura `gap` nei flexbox non è supportata, quindi alcuni elementi possono risultare più ravvicinati (degradazione solo estetica).
-- **Traduzioni**: dizionari in `js/i18n.js` (oggetto `I18N_DICT`, una chiave per lingua: `it`/`en`/`fr`/`es`/`de`). Per aggiungere una lingua: creare un nuovo blocco con le stesse chiavi di `it`, aggiungere il codice a `I18N_SUPPORTED` e la relativa bandiera in `index.html` (`.lang-flag` con `data-lang`), poi creare la guida corrispondente in `docs/`. Il testo statico in `index.html` usa attributi `data-i18n`/`data-i18n-aria`/`data-i18n-placeholder`; il testo generato dinamicamente in `app.js` usa la funzione `t('chiave', {variabili})`.
+- **Traduzioni**: dizionari in `pwa/js/i18n.js` (oggetto `I18N_DICT`, una chiave per lingua: `it`/`en`/`fr`/`es`/`de`). Per aggiungere una lingua: creare un nuovo blocco con le stesse chiavi di `it`, aggiungere il codice a `I18N_SUPPORTED` e la relativa bandiera in `index.html` (`.lang-flag` con `data-lang`), poi creare la guida corrispondente in `docs/`. Il testo statico in `index.html` usa attributi `data-i18n`/`data-i18n-aria`/`data-i18n-placeholder`; il testo generato dinamicamente in `app.js` usa la funzione `t('chiave', {variabili})`.
 
 ---
 
@@ -283,7 +285,7 @@ Di conseguenza cambia anche il **significato** dei campi fuori da `config`:
 ## Licenza
 
 Codice rilasciato sotto licenza **MIT** (vedi [`LICENSE`](LICENSE)) — open source.
-I suoni in `sounds/` sono CC0.
+I suoni in `pwa/sounds/` sono CC0.
 
 > I loghi «EISI» e «Baskin» sono marchi registrati rispettivamente da Ente
 > Italiano Sport Inclusivi e Associazione Baskin. La licenza MIT copre il
@@ -295,4 +297,4 @@ Dal menu **…** dell'app è disponibile il link diretto al **repository GitHub*
 ---
 
 **Autore:** Daniele Lolli (UncleDan)  
-**Versione:** 26.0.1
+**Versione:** 26.0.2
