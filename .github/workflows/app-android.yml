@@ -1,0 +1,115 @@
+# App Android (Capacitor) dalla stessa cartella pwa/.
+#   - push su beta      -> APK di prova nella pre-release «app-beta» (sempre la più recente)
+#   - tag v* (es. v26.0)-> APK nella release del tag
+#   - ogni esecuzione   -> APK anche tra gli artifact dell'esecuzione
+# Senza secret di firma si produce l'APK «debug» (installabile, firma di sviluppo).
+# Con i secret KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD si
+# produce anche l'APK «release» firmato con la chiave del progetto.
+name: App Android
+
+on:
+  push:
+    branches: ["beta", "main"]
+    tags: ["v*"]
+    paths:
+      - "pwa/**"
+      - "android/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
+      - "tools/versione-app.mjs"
+      - ".github/workflows/app-android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Dipendenze e versione
+        run: |
+          npm ci
+          node tools/versione-app.mjs
+
+      - name: Copia la PWA nel progetto Android
+        run: npx cap sync android
+
+      - name: APK debug
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: APK release firmato (se ci sono i secret)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          TBE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          TBE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          TBE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        working-directory: android
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "Nessun keystore: solo APK debug"; exit 0; fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          export TBE_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Raccoglie gli APK
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk "out/Tabellone-Baskin-EISI-${APP_VER}-debug.apk"
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk "out/Tabellone-Baskin-EISI-${APP_VER}.apk"
+          fi
+          ls -la out
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Tabellone-Baskin-EISI-${{ env.APP_VER }}-android
+          path: out/
+
+      - name: Aggiorna il tag app-beta
+        if: github.ref == 'refs/heads/beta'
+        run: |
+          git tag -f app-beta
+          git push -f origin app-beta
+
+      - name: Pre-release app-beta
+        if: github.ref == 'refs/heads/beta'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-beta
+          name: App beta ${{ env.APP_VER }}
+          prerelease: true
+          make_latest: false
+          # Riga iOS tolta finché la compilazione iOS è disattivata (manca il certificato
+          # Apple); da rimettere nel testo qui sotto quando si riattiva app-ios.yml:
+          #   iOS: vedi il file .ipa non firmato, da installare con un tool di sideload.
+          body: |
+            Versione di prova **${{ env.APP_VER }}** dell'app (ramo beta, commit ${{ github.sha }}).
+            Android: scarica l'APK e aprilo dal telefono (consenti l'installazione da questa fonte).
+          files: out/*.apk
+
+      - name: Release del tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ contains(github.ref_name, 'b') }}
+          files: out/*.apk

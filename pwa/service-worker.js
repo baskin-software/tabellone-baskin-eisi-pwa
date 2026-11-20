@@ -21,7 +21,7 @@
    worker gestisce e ripulisce solo le proprie, più quelle vecchio stile
    senza "@" (versioni precedenti e vecchia installazione in /pwa/).
    ===================================================================== */
-const CACHE_NAME = 'tabellone-baskin-eisi-v26.0.2';
+const CACHE_NAME = 'tabellone-baskin-eisi-v26.1b1';
 const CACHE_PREFIX = 'tabellone-baskin-eisi-';
 const SCOPE = self.registration.scope;
 const CACHE = CACHE_NAME + '@' + SCOPE;
@@ -37,6 +37,7 @@ const ASSETS = [
   './css/styles.css',
   './js/i18n.js',
   './js/app.js',
+  './js/nativo.js',
   './manifest.webmanifest',
   './sounds/horn.wav',
   './sounds/whistle.wav',
