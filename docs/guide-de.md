@@ -59,4 +59,4 @@ Der Spielstand wird **nach jeder Aktion** gespeichert, auch wenn die App in den 
 
 ---
 
-📄 Zurück zur [README](../README.md) · 🐞 [Problem melden](https://github.com/baskin-software/tabellone-baskin-eisi-pwa/issues)
+📄 Zurück zur [README](../README.md) · 🐞 [Problem melden](https://github.com/baskinsoftware/tabellone-baskin-eisi-pwa/issues)

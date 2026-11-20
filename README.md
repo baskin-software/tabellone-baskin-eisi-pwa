@@ -28,7 +28,7 @@ Due schermate:
 Tutto il display a 7 segmenti è disegnato in SVG: nessun font o file esterno, quindi funziona davvero offline.
 
 <p align="center">
-  <a href="https://baskin-software.github.io/tabellone-baskin-eisi-pwa/"><img src="https://img.shields.io/badge/%E2%96%B6%20Apri%20la%20PWA-2962FF?style=for-the-badge&logoColor=white" alt="Apri la PWA"></a>
+  <a href="https://baskinsoftware.github.io/tabellone-baskin-eisi-pwa/"><img src="https://img.shields.io/badge/%E2%96%B6%20Apri%20la%20PWA-2962FF?style=for-the-badge&logoColor=white" alt="Apri la PWA"></a>
 </p>
 
 ---
@@ -37,9 +37,9 @@ Tutto il display a 7 segmenti è disegnato in SVG: nessun font o file esterno, q
 
 Il Tabellone Baskin EISI esiste in **due repository**, che lavorano insieme:
 
-- **PWA (web)** — repo **[`tabellone-baskin-eisi-pwa`](https://github.com/baskin-software/tabellone-baskin-eisi-pwa)** *(questo)*:
+- **PWA (web)** — repo **[`tabellone-baskin-eisi-pwa`](https://github.com/baskinsoftware/tabellone-baskin-eisi-pwa)** *(questo)*:
   il segnapunti web di questa pagina, installabile e offline.
-- **App Android** — **Tabellone Baskin EISI (Android)**, repo **[`tabellone-baskin-eisi-android`](https://github.com/baskin-software/tabellone-baskin-eisi-android)** *(work in progress)*:
+- **App Android** — **Tabellone Baskin EISI (Android)**, repo **[`tabellone-baskin-eisi-android`](https://github.com/baskinsoftware/tabellone-baskin-eisi-android)** *(work in progress)*:
   incorpora questa stessa PWA e aggiunge la presentazione su TV (display
   secondario HDMI/Miracast o LAN). Questa PWA, in modalità `?display=1`, fa anche
   da **schermo via browser** per quell'app.
@@ -151,7 +151,7 @@ lettura, adatta a un secondo schermo o a un TV.
 - È disponibile anche `window.applyDisplayState(json)` per aggiornare il display
   con un push diretto (usato dal wrapper Android tramite un display secondario).
 
-Questa modalità è la base dell'app **[Tabellone Baskin EISI (Android)](https://github.com/baskin-software/tabellone-baskin-eisi-android)**
+Questa modalità è la base dell'app **[Tabellone Baskin EISI (Android)](https://github.com/baskinsoftware/tabellone-baskin-eisi-android)**
 (progetto Android separato, **work in progress**) che presenta il tabellone su un
 TV via **display secondario (HDMI/Miracast)** o via **LAN** (browser del TV).
 
@@ -297,4 +297,4 @@ Dal menu **…** dell'app è disponibile il link diretto al **repository GitHub*
 ---
 
 **Autore:** Daniele Lolli (UncleDan)  
-**Versione:** 26.0.2
+**Versione:** 26.0.3

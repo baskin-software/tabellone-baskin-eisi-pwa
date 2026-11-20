@@ -59,4 +59,4 @@ Lo stato della partita viene salvato **ad ogni comando**, anche se l'app va in b
 
 ---
 
-📄 Torna al [README](../README.md) · 🐞 [Segnala un problema](https://github.com/baskin-software/tabellone-baskin-eisi-pwa/issues)
+📄 Torna al [README](../README.md) · 🐞 [Segnala un problema](https://github.com/baskinsoftware/tabellone-baskin-eisi-pwa/issues)

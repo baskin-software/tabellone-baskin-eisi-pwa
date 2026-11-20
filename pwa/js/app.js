@@ -5,7 +5,7 @@
    ===================================================================== */
 'use strict';
 
-const APP_VERSION = '26.0.2';
+const APP_VERSION = '26.0.3';
 const STORE_KEY = 'tabellone-baskin-eisi-v1';
 
 /* Modalità "sola visualizzazione": attivata con ?display=1 nell'URL.
@@ -15,7 +15,7 @@ const STORE_KEY = 'tabellone-baskin-eisi-v1';
 const DISPLAY_MODE = (()=>{ try{ return new URLSearchParams(location.search).get('display') === '1'; }catch(_){ return false; } })();
 
 /* Repository del codice sorgente (modifica l'URL se cambi repo) */
-const REPO_URL = 'https://github.com/baskin-software/tabellone-baskin-eisi-pwa';
+const REPO_URL = 'https://github.com/baskinsoftware/tabellone-baskin-eisi-pwa';
 
 /* =====================================================================
    >>> LOGHI EISI/BASKIN: default per la pubblicazione <<<
