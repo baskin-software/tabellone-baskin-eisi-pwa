@@ -1,4 +1,4 @@
-// versione-app.mjs by Daniele Lolli (UncleDan) feat. Claude AI - Release 26.1b1 - 2026-11-18 20-18-30
+// versione-app.mjs by Daniele Lolli (UncleDan) feat. Claude AI - Release 26.1 - 2026-11-21 08-57-40
 // Allinea la versione delle app Android e iOS ad APP_VERSION di pwa/js/app.js.
 //   26.0b10 -> versionName 26.0b10, versionCode 2600010, iOS 26.0.0 (build 2600010)
 //   26.0    -> versionCode 2600099;  26.0.1 -> 2600199;  26.1b1 -> 2601001

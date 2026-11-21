@@ -331,9 +331,9 @@ npm run android     # versione + cap sync + apre Android Studio
 npm run ios         # versione + cap sync + apre Xcode
 ```
 
-La versione delle app segue `APP_VERSION`: `26.1b1` diventa versionName `26.1b1`
-e versionCode `2601001` (la `26.1` finale `2601099`, la `26.1.1` `2601199`); su iOS
-`26.1.0`, build `2601001`. Identificativo, uguale su Android e iOS:
+La versione delle app segue `APP_VERSION`: `26.1` diventa versionName `26.1`
+e versionCode `2601099` (una beta `26.2b1` `2602001`, la `26.1.1` `2601199`); su iOS
+`26.1.0`, build `2601099`. Identificativo, uguale su Android e iOS:
 `io.github.baskinsoftware.tabellonebaskineisi`, ricavato dal sito
 dell'organizzazione [baskinsoftware.github.io](https://baskinsoftware.github.io/)
 (senza trattini né underscore: l'unica forma valida su entrambe le piattaforme),
@@ -368,4 +368,4 @@ Dal menu **…** dell'app è disponibile il link diretto al **repository GitHub*
 ---
 
 **Autore:** Daniele Lolli (UncleDan)  
-**Versione:** 26.1b1
+**Versione:** 26.1
