@@ -1,4 +1,4 @@
-# release.yml by Daniele Lolli (UncleDan) feat. Claude AI - Release 1.0 - 2026-11-21 09-22-19
+# release.yml by Daniele Lolli (UncleDan) feat. Claude AI - Release 1.1 - 2026-11-21 09-42-48
 #
 # Crea una release GitHub con lancio manuale (Actions → Release → Run workflow).
 # Regola:
@@ -47,7 +47,7 @@ on:
       workflow_dopo:
         description: "Workflow da avviare sul nuovo tag, separati da spazio (es. app-android.yml app-ios.yml); vuoto = nessuno"
         required: false
-        default: ""
+        default: "app-android.yml"
         type: string
 
 permissions:
