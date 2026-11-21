@@ -1,0 +1,17 @@
+{
+  "appId": "io.github.baskinsoftware.tabellonebaskineisi",
+  "appName": "Tabellone Baskin EISI",
+  "webDir": "pwa",
+  "backgroundColor": "#000000",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "plugins": {
+    "SystemBars": {
+      "hidden": true
+    }
+  }
+}

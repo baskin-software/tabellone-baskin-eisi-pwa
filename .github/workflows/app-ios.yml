@@ -1,0 +1,97 @@
+# App iOS (Capacitor) dalla stessa cartella pwa/, su runner macOS.
+# Senza account Apple Developer non si può firmare: il workflow
+#   - verifica che il progetto compili;
+#   - produce un .ipa NON FIRMATO (da firmare/installare con un tool di sideload,
+#     es. Sideloadly o AltStore con un Apple ID gratuito: l'app dura 7 giorni);
+#   - produce l'app per il Simulatore iOS (per chi ha un Mac).
+# Con un account Apple Developer si aggiungeranno certificato e profilo per
+# TestFlight / App Store.
+#
+# COMPILAZIONE AUTOMATICA DISATTIVATA: per ora non c'è un certificato Apple.
+# Il workflow e il progetto ios/ restano; si può lanciare a mano da
+# Actions > App iOS > Run workflow. Per riattivarlo togliere i commenti
+# dal blocco «push:» qui sotto.
+name: App iOS
+
+on:
+  # push:
+  #   branches: ["beta", "main"]
+  #   tags: ["v*"]
+  #   paths:
+  #     - "pwa/**"
+  #     - "ios/**"
+  #     - "package.json"
+  #     - "package-lock.json"
+  #     - "capacitor.config.json"
+  #     - "tools/versione-app.mjs"
+  #     - ".github/workflows/app-ios.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Xcode più recente disponibile
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          echo "Uso $XC"; sudo xcode-select -s "$XC"; xcodebuild -version
+
+      - name: Dipendenze e versione
+        run: |
+          npm ci
+          node tools/versione-app.mjs
+
+      - name: Copia la PWA nel progetto iOS
+        run: npx cap sync ios
+
+      - name: Build per dispositivo (non firmata)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          mkdir -p out/Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app out/Payload/
+          (cd out && zip -qry "Tabellone-Baskin-EISI-${APP_VER}-non-firmata.ipa" Payload && rm -rf Payload)
+
+      - name: Build per Simulatore
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build-sim \
+            CODE_SIGNING_ALLOWED=NO build
+          (cd build-sim/Build/Products/Debug-iphonesimulator && zip -qry "$GITHUB_WORKSPACE/out/Tabellone-Baskin-EISI-${APP_VER}-simulatore.zip" App.app)
+          ls -la out
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Tabellone-Baskin-EISI-${{ env.APP_VER }}-ios
+          path: out/
+
+      - name: Pre-release app-beta
+        if: github.ref == 'refs/heads/beta'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-beta
+          prerelease: true
+          make_latest: false
+          files: out/*.ipa
+
+      - name: Release del tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ contains(github.ref_name, 'b') }}
+          files: out/*

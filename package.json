@@ -1,0 +1,21 @@
+{
+  "name": "tabellone-baskin-eisi-pwa",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tabellone Baskin EISI (PWA) — app Android e iOS con Capacitor, dalla stessa cartella pwa/",
+  "license": "MIT",
+  "scripts": {
+    "versione": "node tools/versione-app.mjs",
+    "sync": "node tools/versione-app.mjs && cap sync",
+    "android": "node tools/versione-app.mjs && cap sync android && cap open android",
+    "ios": "node tools/versione-app.mjs && cap sync ios && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.2"
+  }
+}

@@ -44,6 +44,11 @@ Il Tabellone Baskin EISI esiste in **due repository**, che lavorano insieme:
   secondario HDMI/Miracast o LAN). Questa PWA, in modalità `?display=1`, fa anche
   da **schermo via browser** per quell'app.
 
+Da questo repository si compilano anche le app **Android e iOS** con le sole
+funzioni della PWA (vedi [App Android e iOS](#app-android-e-ios-sperimentale)):
+sono un'altra cosa rispetto all'app *Tabellone Baskin EISI (Android)*, che
+aggiunge la presentazione su TV.
+
 ---
 
 ## Funzioni
@@ -79,8 +84,15 @@ python3 -m http.server 8080
 tabellone-baskin-eisi-pwa/
 ├── README.md
 ├── .gitignore
+├── package.json, capacitor.config.json   (app Android e iOS con Capacitor, webDir: pwa)
 ├── .github/workflows/
-│   └── pages.yml       (GitHub Pages: main → /, beta → /beta/, /pwa/ → /)
+│   ├── pages.yml       (GitHub Pages: main → /, beta → /beta/, /pwa/ → /)
+│   ├── app-android.yml (APK)
+│   └── app-ios.yml     (.ipa non firmato e build per Simulatore; automatica disattivata)
+├── android/            (progetto Android, TabellonePlugin.java)
+├── ios/                (progetto iOS, TabellonePlugin.swift)
+├── assets/             (sorgenti di icone e splash delle app)
+├── tools/versione-app.mjs   (versione delle app = APP_VERSION)
 ├── docs/
 │   ├── guida-it.md
 │   ├── guide-en.md
@@ -94,6 +106,7 @@ tabellone-baskin-eisi-pwa/
     ├── css/styles.css
     ├── js/i18n.js
     ├── js/app.js
+    ├── js/nativo.js    (adattamenti per le app Android/iOS)
     ├── sounds/
     │   ├── horn.wav        (sirena - audio originale, CC0)
     │   ├── whistle.wav     (fischietto - audio originale, CC0)
@@ -271,6 +284,64 @@ Di conseguenza cambia anche il **significato** dei campi fuori da `config`:
 
 ---
 
+## App Android e iOS (sperimentale)
+
+Dallo stesso repository si compilano anche le app native, con
+[Capacitor](https://capacitorjs.com): impacchettano la cartella `pwa/` così com'è,
+con le stesse funzioni e lo stesso aspetto della PWA. Nell'app nativa
+`pwa/js/nativo.js` e poche righe di `pwa/js/app.js` sostituiscono le parti che
+nella WebView non funzionano:
+
+- **schermo sempre acceso** con il plugin locale `Tabellone` (Android
+  `FLAG_KEEP_SCREEN_ON`, iOS `isIdleTimerDisabled`);
+- **Chiudi applicazione** chiude l'app su Android; su iOS le app non si chiudono
+  da sole e il pulsante è nascosto;
+- i **link esterni** (repository, segnalazioni, eisi.it, baskin.it) si aprono nel
+  browser di sistema;
+- schermo intero in orizzontale, come la PWA installata;
+- niente service worker né «Installa app»; «Verifica aggiornamenti» apre le release.
+
+| Piattaforma | Workflow | Risultato |
+|---|---|---|
+| Android | `.github/workflows/app-android.yml` (Linux) | APK debug sempre; APK release firmato se ci sono i secret `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` |
+| iOS | `.github/workflows/app-ios.yml` (macOS) | `.ipa` **non firmato** e build per Simulatore — **compilazione automatica disattivata** |
+
+A ogni push sul ramo `beta` gli APK finiscono nella pre-release **app-beta**
+(sempre la più recente); con un tag `v*` nella release del tag; ogni esecuzione li
+lascia anche tra gli artifact.
+
+> **iOS, per ora:** senza certificato Apple la compilazione automatica è
+> commentata in `app-ios.yml`; il workflow e il progetto `ios/` restano nel
+> repository e si possono lanciare a mano da *Actions → App iOS → Run workflow*.
+> Per riattivarla basta togliere i commenti dal blocco `push:`.
+
+- **Android**: dal telefono, apri la pre-release *app-beta* e scarica l'APK
+  (consenti l'installazione da questa fonte).
+- **iOS**: senza account Apple Developer l'app non si può firmare in automatico.
+  L'`.ipa` non firmato si installa con un tool di sideload (Sideloadly, AltStore)
+  e un Apple ID gratuito, con durata di 7 giorni. Per TestFlight/App Store servono
+  l'account Apple Developer, il certificato e il profilo di provisioning.
+
+Comandi (servono Node.js 22, per Android JDK 21 e Android Studio, per iOS un Mac
+con Xcode):
+
+```bash
+npm ci
+npm run android     # versione + cap sync + apre Android Studio
+npm run ios         # versione + cap sync + apre Xcode
+```
+
+La versione delle app segue `APP_VERSION`: `26.1` diventa versionName `26.1`
+e versionCode `2601099` (una beta `26.2b1` `2602001`, la `26.1.1` `2601199`); su iOS
+`26.1.0`, build `2601099`. Identificativo, uguale su Android e iOS:
+`io.github.baskinsoftware.tabellonebaskineisi`, ricavato dal sito
+dell'organizzazione [baskinsoftware.github.io](https://baskinsoftware.github.io/)
+(senza trattini né underscore: l'unica forma valida su entrambe le piattaforme),
+diverso da quello dell'app *Tabellone Baskin
+EISI (Android)*, così le due app si possono installare insieme.
+
+---
+
 ## Regole implementate
 
 - **Tempi** → quarti da **8 minuti**, **4 periodi**, tempi supplementari da **4 minuti** (siglati da `1TS` a `9TS`).
@@ -297,4 +368,4 @@ Dal menu **…** dell'app è disponibile il link diretto al **repository GitHub*
 ---
 
 **Autore:** Daniele Lolli (UncleDan)  
-**Versione:** 26.0.3
+**Versione:** 26.1
