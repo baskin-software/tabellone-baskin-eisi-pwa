@@ -1,15 +1,17 @@
-# release.yml by Daniele Lolli (UncleDan) feat. Claude AI - Release 1.1 - 2026-11-21 09-42-48
+# release.yml by Daniele Lolli (UncleDan) feat. Claude AI - Release 1.2 - 2026-11-21 09-55-57
 #
 # Crea una release GitHub con lancio manuale (Actions → Release → Run workflow).
 # Regola:
 #   - titolo = primo titolo "# " del README + spazio + <prefisso><versione>
 #   - tag    = <prefisso><versione>                  (es. v26.1)
 #   - testo  = README dalla prima riga non vuota dopo il titolo, fino alla fine
-# Nessun percorso fisso: README, ramo, prefisso e workflow da lanciare dopo sono
-# parametri, quindi il file si copia così com'è in qualsiasi repository.
+# Nessun percorso fisso: README, ramo e prefisso sono parametri; i file dei workflow
+# delle app sono nelle variabili WF_ANDROID e WF_IOS qui sotto (in "env"), così il
+# file si riusa in altri repository cambiando solo quelle due righe.
 #
 # Nota: un tag creato con GITHUB_TOKEN non avvia gli altri workflow "on: push tags".
-# Per farli partire (es. la build delle app) indicali in "workflow_dopo".
+# Per questo gli interruttori "App Android" / "App iOS" li avviano sul nuovo tag;
+# in "altri_workflow" se ne possono aggiungere altri.
 name: Release
 
 on:
@@ -44,15 +46,29 @@ on:
         required: false
         default: false
         type: boolean
-      workflow_dopo:
-        description: "Workflow da avviare sul nuovo tag, separati da spazio (es. app-android.yml app-ios.yml); vuoto = nessuno"
+      app_android:
+        description: "App Android"
         required: false
-        default: "app-android.yml"
+        default: true
+        type: boolean
+      app_ios:
+        description: "App iOS"
+        required: false
+        default: false
+        type: boolean
+      altri_workflow:
+        description: "Altri workflow da avviare sul nuovo tag, separati da spazio (vuoto = nessuno)"
+        required: false
+        default: ""
         type: string
 
 permissions:
   contents: write
   actions: write
+
+env:
+  WF_ANDROID: app-android.yml   # workflow della app Android
+  WF_IOS: app-ios.yml           # workflow della app iOS
 
 concurrency:
   group: release-${{ github.repository }}
@@ -69,7 +85,9 @@ jobs:
       PREFISSO: ${{ inputs.prefisso_tag }}
       PRERELEASE: ${{ inputs.prerelease }}
       BOZZA: ${{ inputs.bozza }}
-      WORKFLOW_DOPO: ${{ inputs.workflow_dopo }}
+      APP_ANDROID: ${{ inputs.app_android }}
+      APP_IOS: ${{ inputs.app_ios }}
+      ALTRI_WORKFLOW: ${{ inputs.altri_workflow }}
     steps:
       - name: Checkout del ramo
         uses: actions/checkout@v4
@@ -137,13 +155,17 @@ jobs:
           echo "- **Release:** $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Avvia i workflow sul nuovo tag
-        if: ${{ inputs.workflow_dopo != '' && !inputs.bozza }}
+        if: ${{ !inputs.bozza && (inputs.app_android || inputs.app_ios || inputs.altri_workflow != '') }}
         shell: bash
         env:
           TAG: ${{ steps.dati.outputs.tag }}
         run: |
           set -euo pipefail
-          for WF in $WORKFLOW_DOPO; do
+          LISTA=""
+          [ "$APP_ANDROID" = "true" ] && LISTA="$LISTA $WF_ANDROID"
+          [ "$APP_IOS" = "true" ] && LISTA="$LISTA $WF_IOS"
+          LISTA="$LISTA $ALTRI_WORKFLOW"
+          for WF in $LISTA; do
             echo "Avvio $WF su $TAG"
             gh workflow run "$WF" --repo "$GITHUB_REPOSITORY" --ref "$TAG"
             echo "- **Avviato:** $WF su $TAG" >> "$GITHUB_STEP_SUMMARY"
